@@ -18,7 +18,7 @@ const ContactUs: React.FC = () => {
     setLoading(true);
     
     try {
-      await axios.post('http://localhost:3001/api/contact', formData);
+      await axios.post('http://localhost:3002/api/contact', formData);
       setSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {

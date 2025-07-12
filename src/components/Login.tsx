@@ -102,7 +102,7 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        {/* <div className="mt-6 space-y-3">
+        <div className="mt-6 space-y-3">
           <div className="text-center text-sm text-gray-600">
             Demo Accounts:
           </div>
@@ -120,7 +120,7 @@ const Login: React.FC = () => {
               User Demo
             </button>
           </div>
-        </div> */}
+        </div>
 
         <div className="mt-8 text-center">
           <p className="text-gray-600">

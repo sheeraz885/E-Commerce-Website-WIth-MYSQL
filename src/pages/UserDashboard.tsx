@@ -39,7 +39,7 @@ const UserDashboard: React.FC = () => {
   const fetchOrders = async () => {
     try {
       // Fetch orders instead of transactions
-      const response = await axios.get(`http://localhost:3001/api/orders?user_id=${user?.id}`);
+      const response = await axios.get(`http://localhost:3002/api/orders?user_id=${user?.id}`);
       const userOrders = response.data;
       setOrders(userOrders);
       

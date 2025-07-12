@@ -65,10 +65,10 @@ const AdminDashboard: React.FC = () => {
   const fetchAllData = async () => {
     try {
       const [productsRes, categoriesRes, usersRes, transactionsRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/products'),
-        axios.get('http://localhost:3001/api/categories'),
-        axios.get('http://localhost:3001/api/users'),
-        axios.get('http://localhost:3001/api/transactions')
+        axios.get('http://localhost:3002/api/products'),
+        axios.get('http://localhost:3002/api/categories'),
+        axios.get('http://localhost:3002/api/users'),
+        axios.get('http://localhost:3002/api/transactions')
       ]);
       
       setProducts(productsRes.data);
@@ -119,18 +119,18 @@ const AdminDashboard: React.FC = () => {
     try {
       if (modalType === 'product') {
         if (editingItem) {
-          await axios.put(`http://localhost:3001/api/products/${editingItem.id}`, formData);
+          await axios.put(`http://localhost:3002/api/products/${editingItem.id}`, formData);
           showMessage('Product updated successfully!');
         } else {
-          await axios.post('http://localhost:3001/api/products', formData);
+          await axios.post('http://localhost:3002/api/products', formData);
           showMessage('Product created successfully!');
         }
       } else {
         if (editingItem) {
-          await axios.put(`http://localhost:3001/api/categories/${editingItem.id}`, formData);
+          await axios.put(`http://localhost:3002/api/categories/${editingItem.id}`, formData);
           showMessage('Category updated successfully!');
         } else {
-          await axios.post('http://localhost:3001/api/categories', formData);
+          await axios.post('http://localhost:3002/api/categories', formData);
           showMessage('Category created successfully!');
         }
       }
@@ -147,10 +147,10 @@ const AdminDashboard: React.FC = () => {
     
     try {
       if (type === 'product') {
-        await axios.delete(`http://localhost:3001/api/products/${id}`);
+        await axios.delete(`http://localhost:3002/api/products/${id}`);
         showMessage('Product deleted successfully!');
       } else {
-        await axios.delete(`http://localhost:3001/api/categories/${id}`);
+        await axios.delete(`http://localhost:3002/api/categories/${id}`);
         showMessage('Category deleted successfully!');
       }
       
@@ -162,7 +162,7 @@ const AdminDashboard: React.FC = () => {
 
   const updateTransactionStatus = async (id: number, status: string) => {
     try {
-      await axios.put(`http://localhost:3001/api/transactions/${id}`, { status });
+      await axios.put(`http://localhost:3002/api/transactions/${id}`, { status });
       showMessage('Transaction status updated!');
       fetchAllData();
     } catch (error) {
@@ -172,7 +172,7 @@ const AdminDashboard: React.FC = () => {
 
   const updateUserRole = async (id: number, role: string) => {
     try {
-      await axios.put(`http://localhost:3001/api/users/${id}`, { role });
+      await axios.put(`http://localhost:3002/api/users/${id}`, { role });
       showMessage('User role updated!');
       fetchAllData();
     } catch (error) {

@@ -1,9 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+dotenv.config();
+
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3002; 
 
 // Middleware
 app.use(cors());
@@ -12,7 +17,7 @@ app.use(express.json());
 // Simple in-memory data for demo (when MySQL is not available)
 let users = [
   { id: 1, name: 'Admin User', email: 'admin@admin.com', password: 'admin123', role: 'admin', created_at: new Date() },
-  { id: 2, name: 'John Doe', email: 'user@user.com', password: 'user123', role: 'user', created_at: new Date() }
+  { id: 2, name: 'Amir Khan', email: 'user@user.com', password: 'user123', role: 'user', created_at: new Date() }
 ];
 
 let categories = [
@@ -60,18 +65,37 @@ let nextContactId = 1;
 // MySQL Connection
 let db = null;
 
+// Get current directory path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+
 // Initialize database connection
 async function initDB() {
   try {
-    const dbConfig = {
-      host: 'localhost',
-      user: 'root',
-      password: 'positive1$',
-      database: 'ecommerce_db',
-      connectTimeout: 5000, // 5 second timeout
-      acquireTimeout: 5000,
-      timeout: 5000
-    };
+  const dbConfig = {
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
+  connectTimeout: 10000
+};
+
+
+
+
+// Load .env file from same directory
+
+console.log('Current directory:', __dirname);
+console.log('Environment Variables:', {
+  HOST: process.env.HOST,
+  USER: process.env.USER,
+  PASSWORD: process.env.PASSWORD,
+  DATABASE: process.env.DATABASE,
+  PORT: process.env.PORT
+});
+    
     
     // Try to connect to MySQL with timeout
     db = await mysql.createConnection(dbConfig);
@@ -79,12 +103,12 @@ async function initDB() {
     // Test the connection
     await db.ping();
     
-    console.log('✅ Connected to MySQL database');
+    console.log('Connected to MySQL database');
     await createTables();
     await insertSampleData();
-    console.log('✅ Database tables created and sample data inserted');
+    console.log('Database tables created and sample data inserted');
   } catch (error) {
-    console.log('⚠️  MySQL not available, using in-memory data for demo');
+    console.log(' MySQL not available, using in-memory data for demo');
     console.log('   This is normal if you don\'t have MySQL installed or running');
     db = null;
   }

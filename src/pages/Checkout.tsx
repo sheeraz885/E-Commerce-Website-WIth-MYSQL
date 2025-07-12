@@ -57,7 +57,7 @@ const Checkout: React.FC = () => {
         status: 'ordered'
       };
 
-      const response = await axios.post('http://localhost:3001/api/orders', orderData);
+      const response = await axios.post('http://localhost:3002/api/orders', orderData);
       setOrderId(response.data.id);
       setOrderPlaced(true);
       clearCart();

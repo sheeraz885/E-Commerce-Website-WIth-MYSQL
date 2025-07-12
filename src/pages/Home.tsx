@@ -78,7 +78,7 @@ const Home: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/products');
+      const response = await axios.get('http://localhost:3002/api/products');
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -89,7 +89,7 @@ const Home: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/categories');
+      const response = await axios.get('http://localhost:3002/api/categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);

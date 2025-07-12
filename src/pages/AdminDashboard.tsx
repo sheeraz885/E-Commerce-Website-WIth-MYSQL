@@ -31,16 +31,18 @@ interface User {
   created_at: string;
 }
 
-interface Transaction {
+interface Order {
   id: number;
   user_id: number;
-  product_id: number;
-  quantity: number;
-  status: 'ordered' | 'shipped' | 'delivered' | 'cancelled';
-  transaction_date: string;
   user_name: string;
-  product_name: string;
-  price: number;
+  total_amount: number;
+  status: 'ordered' | 'shipped' | 'delivered' | 'cancelled';
+  created_at: string;
+  items?: Array<{
+    product_name: string;
+    quantity: number;
+    price: number;
+  }>;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -48,7 +50,7 @@ const AdminDashboard: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'product' | 'category'>('product');
@@ -64,17 +66,17 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAllData = async () => {
     try {
-      const [productsRes, categoriesRes, usersRes, transactionsRes] = await Promise.all([
+      const [productsRes, categoriesRes, usersRes, ordersRes] = await Promise.all([
         axios.get('http://localhost:3002/api/products'),
         axios.get('http://localhost:3002/api/categories'),
         axios.get('http://localhost:3002/api/users'),
-        axios.get('http://localhost:3002/api/transactions')
+        axios.get('http://localhost:3002/api/orders')
       ]);
       
       setProducts(productsRes.data);
       setCategories(categoriesRes.data);
       setUsers(usersRes.data);
-      setTransactions(transactionsRes.data);
+      setOrders(ordersRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -162,11 +164,11 @@ const AdminDashboard: React.FC = () => {
 
   const updateTransactionStatus = async (id: number, status: string) => {
     try {
-      await axios.put(`http://localhost:3002/api/transactions/${id}`, { status });
-      showMessage('Transaction status updated!');
+      await axios.put(`http://localhost:3002/api/orders/${id}`, { status });
+      showMessage('Order status updated!');
       fetchAllData();
     } catch (error) {
-      showMessage('Update failed. Please try again.');
+      showMessage('Order status update failed. Please try again.');
     }
   };
 
@@ -194,8 +196,8 @@ const AdminDashboard: React.FC = () => {
   const stats = {
     totalProducts: products.length,
     totalUsers: users.length,
-    totalOrders: transactions.length,
-    totalRevenue: transactions.reduce((sum, t) => sum + (t.price * t.quantity), 0)
+    totalOrders: orders.length,
+    totalRevenue: orders.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0)
   };
 
   return (
@@ -470,7 +472,7 @@ const AdminDashboard: React.FC = () => {
                         {new Date(userData.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {transactions.filter(t => t.user_id === userData.id).length} orders
+                        {orders.filter(o => o.user_id === userData.id).length} orders
                       </td>
                     </tr>
                   ))}
@@ -492,27 +494,27 @@ const AdminDashboard: React.FC = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{transaction.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.user_name}</td>
+                  {orders.map((order) => (
+                    <tr key={order.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.user_name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {transaction.product_name} x{transaction.quantity}
+                        {order.items?.length || 0} items
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                       Rs:  {(transaction.price * transaction.quantity).toFixed(2)}
+                        Rs: {(Number(order.total_amount) || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <select
-                          value={transaction.status}
-                          onChange={(e) => updateTransactionStatus(transaction.id, e.target.value)}
+                          value={order.status}
+                          onChange={(e) => updateTransactionStatus(order.id, e.target.value)}
                           className="text-sm border border-gray-300 rounded px-2 py-1"
                         >
                           <option value="ordered">Ordered</option>
@@ -522,7 +524,7 @@ const AdminDashboard: React.FC = () => {
                         </select>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(transaction.transaction_date).toLocaleDateString()}
+                        {new Date(order.created_at).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
